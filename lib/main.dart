@@ -11,7 +11,8 @@ class ThemeNotifier extends ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
 
   void toggleTheme() {
-    _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    _themeMode =
+    _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
     notifyListeners();
   }
 }
@@ -25,7 +26,7 @@ class ChatMessage {
   ChatMessage({required this.text, required this.isUser, this.options = const []});
 }
 
-// --- Dark Theme Colors (Github-inspired) ---
+// --- Dark Theme Colors ---
 const Color background = Color(0xFF0D1117);
 const Color chatBackground = Color(0xFF161B22);
 const Color userMessageColor = Color(0xFF1F6FEB);
@@ -41,7 +42,6 @@ const Color lightBotMessageColor = Color(0xFFE9EEF3);
 const Color lightHintTextColor = Color(0xFF586069);
 const Color lightSendButtonColor = Color(0xFF28A745);
 
-
 void main() {
   runApp(
     ChangeNotifierProvider(
@@ -51,14 +51,12 @@ void main() {
   );
 }
 
-
 class ChatBotApp extends StatelessWidget {
   const ChatBotApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Personal AI Chatbot",
@@ -70,9 +68,7 @@ class ChatBotApp extends StatelessWidget {
           backgroundColor: lightBackground,
           foregroundColor: Colors.black,
         ),
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(color: Colors.black),
-        ),
+        textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.black)),
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
@@ -81,9 +77,7 @@ class ChatBotApp extends StatelessWidget {
           backgroundColor: background,
           foregroundColor: Colors.white,
         ),
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(color: Colors.white),
-        ),
+        textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
       ),
       home: const ChatContainer(),
     );
@@ -92,7 +86,6 @@ class ChatBotApp extends StatelessWidget {
 
 class ChatContainer extends StatefulWidget {
   const ChatContainer({super.key});
-
   @override
   State<ChatContainer> createState() => _ChatContainerState();
 }
@@ -104,20 +97,17 @@ class _ChatContainerState extends State<ChatContainer> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _openChatWithAnimation();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _openChatWithAnimation());
   }
 
   Route _createPopupRoute() {
     final chatScreen = ChatScreen(key: _chatScreenKey);
-
     return PageRouteBuilder(
       opaque: false,
       transitionDuration: const Duration(milliseconds: 600),
       reverseTransitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, animation, secondaryAnimation) => chatScreen,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      pageBuilder: (context, animation, _) => chatScreen,
+      transitionsBuilder: (context, animation, _, child) {
         const curve = Curves.elasticOut;
         var tween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
         return ScaleTransition(scale: animation.drive(tween), child: child);
@@ -127,9 +117,7 @@ class _ChatContainerState extends State<ChatContainer> {
 
   void _openChatWithAnimation() {
     setState(() => _isChatOpen = true);
-    Navigator.of(context)
-        .push(_createPopupRoute())
-        .then((_) {
+    Navigator.of(context).push(_createPopupRoute()).then((_) {
       setState(() => _isChatOpen = false);
       _chatScreenKey.currentState?._inactivityTimer?.cancel();
     });
@@ -142,9 +130,12 @@ class _ChatContainerState extends State<ChatContainer> {
 
   @override
   Widget build(BuildContext context) {
-    // Use theme-aware colors for the container background
-    final currentBackground = Theme.of(context).brightness == Brightness.dark ? background : lightBackground;
-    final currentHintColor = Theme.of(context).brightness == Brightness.dark ? hintTextColor : lightHintTextColor;
+    final currentBackground = Theme.of(context).brightness == Brightness.dark
+        ? background
+        : lightBackground;
+    final currentHintColor = Theme.of(context).brightness == Brightness.dark
+        ? hintTextColor
+        : lightHintTextColor;
 
     if (!_isChatOpen) {
       return Scaffold(
@@ -171,10 +162,9 @@ class _ChatContainerState extends State<ChatContainer> {
   }
 }
 
-
+// --- Chat Screen ---
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
-
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
@@ -200,13 +190,18 @@ class _ChatScreenState extends State<ChatScreen> {
     'Study-tips',
   ];
 
-  final List<String> _languages = ['English', 'Hindi', 'Tamil','Kannada', 'Telugu', 'Malayalam'];
+  final List<String> _languages = [
+    'English',
+    'Hindi',
+    'Kannada',
+  ];
 
   @override
   void initState() {
     super.initState();
     _messages.add(ChatMessage(
-      text: 'Hi there! I’m your Personal AI assistant.\nAsk me anything or select a topic!',
+      text:
+      'Hi there! I’m your Personal AI assistant.\nAsk me anything or select a topic!',
       isUser: false,
     ));
     _startInactivityTimer();
@@ -216,7 +211,8 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _messages.clear();
       _messages.add(ChatMessage(
-        text: 'Chat reset! I’m your Personal AI assistant.\nHow can I help you today?',
+        text:
+        'Chat reset! I’m your Personal AI assistant.\nHow can I help you today?',
         isUser: false,
       ));
     });
@@ -224,8 +220,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   List<String> _extractOptions(String rawText) {
     final RegExp regex = RegExp(r'<<OPTION:([^>]+)>>');
-    final matches = regex.allMatches(rawText);
-    return matches.map((m) => m.group(1)!).toList();
+    return regex.allMatches(rawText).map((m) => m.group(1)!).toList();
   }
 
   String _cleanText(String rawText) {
@@ -233,10 +228,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return rawText.replaceAll(regex, '').trim();
   }
 
+  // ✅ UPDATED sendMessage: includes language + error handling
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty || _isLoading) return;
 
-    // Add language instruction to the text for the AI
     final aiInput = "$text (respond in $_selectedLanguage)";
 
     setState(() {
@@ -249,37 +244,65 @@ class _ChatScreenState extends State<ChatScreen> {
     _inactivityTimer?.cancel();
 
     try {
-      final response = await http.post(
+      final response = await http
+          .post(
         Uri.parse(_pythonApiUrl),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'user_input': aiInput}),
-      ).timeout(const Duration(seconds: 25));
+        body: jsonEncode({
+          'user_input': aiInput,
+          'language': _selectedLanguage, // ✅ send language
+        }),
+      )
+          .timeout(const Duration(seconds: 25));
 
-      String rawReply = jsonDecode(response.body)['response'] ?? "Sorry, I didn’t get that.";
-
-      final options = _extractOptions(rawReply);
-      final cleanReply = _cleanText(rawReply);
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final String rawReply = data['response'] ?? "Sorry, I didn’t get that.";
+      final List<String> options = _extractOptions(rawReply);
+      final String cleanReply = _cleanText(rawReply);
 
       setState(() {
-        _messages.add(ChatMessage(
-          text: cleanReply,
-          isUser: false,
-          options: options,
-        ));
+        _messages.add(ChatMessage(text: cleanReply, isUser: false, options: options));
       });
-
     } catch (e) {
       setState(() {
         _messages.add(ChatMessage(
-            text: "⚠ Error connecting to server: $e\nCheck your Flask server and network settings.",
-            isUser: false
-        ));
+            text:
+            "⚠️ Error connecting to server: $e\nCheck your Flask server and network settings.",
+            isUser: false));
       });
     }
 
     setState(() => _isLoading = false);
     _scrollToBottom();
     _startInactivityTimer();
+  }
+
+  // ✅ NEW: Trigger backend when language is changed
+  Future<void> _handleLanguageChange(String newLanguage) async {
+    setState(() => _selectedLanguage = newLanguage);
+
+    try {
+      final response = await http.post(
+        Uri.parse(_pythonApiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'user_input': "change_language",
+          'language': _selectedLanguage,
+        }),
+      );
+
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final String reply = data['response'] ?? "Language changed.";
+
+      setState(() {
+        _messages.add(ChatMessage(text: reply, isUser: false));
+      });
+    } catch (e) {
+      setState(() {
+        _messages.add(ChatMessage(
+            text: "⚠️ Failed to switch language: $e", isUser: false));
+      });
+    }
   }
 
   void _scrollToBottom() {
@@ -297,9 +320,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _startInactivityTimer() {
     _inactivityTimer?.cancel();
     _inactivityTimer = Timer(const Duration(minutes: 2), () {
-      if (mounted) {
-        _sendMessage("auto_reset_scroll");
-      }
+      if (mounted) _sendMessage("auto_reset_scroll");
     });
   }
 
@@ -315,7 +336,6 @@ class _ChatScreenState extends State<ChatScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final alignment = msg.isUser ? Alignment.centerRight : Alignment.centerLeft;
 
-    // Use theme-aware colors
     final bubbleColor = msg.isUser
         ? (isDark ? userMessageColor : lightUserMessageColor)
         : (isDark ? botMessageColor : lightBotMessageColor);
@@ -326,18 +346,20 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Column(
-          crossAxisAlignment: msg.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+          msg.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Container(
-              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+              constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.75),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: bubbleColor,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Text(msg.text, style: TextStyle(color: textColor, fontSize: 15)),
+              child: Text(msg.text,
+                  style: TextStyle(color: textColor, fontSize: 15)),
             ),
-
             if (!msg.isUser && msg.options.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
@@ -346,9 +368,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   runSpacing: 4.0,
                   children: msg.options.map((optionText) {
                     return ActionChip(
-                      label: Text(optionText, style: TextStyle(color: isDark ? sendButtonColor : lightSendButtonColor)),
-                      backgroundColor: isDark ? Colors.white : lightBotMessageColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      label: Text(optionText,
+                          style: TextStyle(
+                              color: isDark
+                                  ? sendButtonColor
+                                  : lightSendButtonColor)),
+                      backgroundColor:
+                      isDark ? Colors.white : lightBotMessageColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       onPressed: () => _sendMessage(optionText),
                     );
                   }).toList(),
@@ -362,11 +390,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
+    final themeNotifier =
+    Provider.of<ThemeNotifier>(context, listen: false);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final currentChatBackground = isDark ? chatBackground : lightChatBackground;
+    final currentChatBackground =
+    isDark ? chatBackground : lightChatBackground;
     final currentBackground = isDark ? background : lightBackground;
-    final currentSendButtonColor = isDark ? sendButtonColor : lightSendButtonColor;
+    final currentSendButtonColor =
+    isDark ? sendButtonColor : lightSendButtonColor;
 
     return Scaffold(
       backgroundColor: currentChatBackground,
@@ -378,76 +409,72 @@ class _ChatScreenState extends State<ChatScreen> {
           DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               dropdownColor: currentBackground,
-              icon: Icon(Icons.language, color: Theme.of(context).appBarTheme.foregroundColor),
+              icon: Icon(Icons.language,
+                  color: Theme.of(context).appBarTheme.foregroundColor),
               value: _selectedLanguage,
               items: _languages
                   .map((lang) => DropdownMenuItem(
                 value: lang,
-                child: Text(lang, style: TextStyle(color: Theme.of(context).appBarTheme.foregroundColor)),
+                child: Text(lang,
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .appBarTheme
+                            .foregroundColor)),
               ))
                   .toList(),
               onChanged: (value) {
-                setState(() => _selectedLanguage = value!);
+                if (value != null) _handleLanguageChange(value);
               },
             ),
           ),
-
           IconButton(
-            icon: Icon(Icons.refresh, color: Theme.of(context).appBarTheme.foregroundColor),
+            icon: Icon(Icons.refresh,
+                color: Theme.of(context).appBarTheme.foregroundColor),
             tooltip: 'Reset Chat',
             onPressed: _resetChat,
           ),
         ],
       ),
-
       drawer: Drawer(
         backgroundColor: currentBackground,
         child: ListView(
           children: [
             DrawerHeader(
               decoration: BoxDecoration(color: currentSendButtonColor),
-              child: Center(
-                child: Text("Personal AI Assistant", style: const TextStyle(fontSize: 20, color: Colors.white)),
+              child: const Center(
+                child: Text("Personal AI Assistant",
+                    style: TextStyle(fontSize: 20, color: Colors.white)),
               ),
             ),
-
-            // --- NEW: Theme Option ---
             ListTile(
-              leading: Icon(isDark ? Icons.light_mode : Icons.dark_mode, color: Theme.of(context).textTheme.bodyMedium?.color),
-              title: Text('Theme Mode', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color)),
+              leading: Icon(
+                  isDark ? Icons.light_mode : Icons.dark_mode,
+                  color: Theme.of(context).textTheme.bodyMedium?.color),
+              title: Text('Theme Mode',
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyMedium?.color)),
               trailing: Switch(
                 value: isDark,
                 onChanged: (_) => themeNotifier.toggleTheme(),
                 activeColor: currentSendButtonColor,
               ),
             ),
-            // --- END NEW: Theme Option ---
-
             ListTile(
-              leading: Icon(Icons.settings, color: Theme.of(context).textTheme.bodyMedium?.color),
-              title: Text('Settings', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color)),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: Icon(Icons.history, color: Theme.of(context).textTheme.bodyMedium?.color),
-              title: Text('Search History', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color)),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: Icon(Icons.info, color: Theme.of(context).textTheme.bodyMedium?.color),
-              title: Text('About', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color)),
+              leading: Icon(Icons.info,
+                  color: Theme.of(context).textTheme.bodyMedium?.color),
+              title: Text('About',
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyMedium?.color)),
               onTap: () {
                 showAboutDialog(
                   context: context,
                   applicationName: 'Personal AI Chatbot',
                   applicationVersion: '1.0.0',
                   children: const [
-                    Text("Developed by Team : Hack Street Boys\nYour personal AI assistant powered by Flask + Gemini API.",style: TextStyle(
-                      color: Colors.black, // Use contrasting color for dialog text
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-
-                    ),),
+                    Text(
+                      "Developed by Team : Hack Street Boys\nYour personal AI assistant powered by Flask + Gemini API.",
+                      style: TextStyle(fontSize: 15),
+                    ),
                   ],
                 );
               },
@@ -455,7 +482,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
-
       body: Column(
         children: [
           SizedBox(
@@ -468,29 +494,25 @@ class _ChatScreenState extends State<ChatScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: ActionChip(
                     label: Text(topic),
-                    backgroundColor: isDark ? Colors.blueGrey.shade800 : Colors.blueGrey.shade200,
-                    labelStyle: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                    onPressed: () {
-                      _sendMessage(topic);
-                    },
+                    backgroundColor:
+                    isDark ? Colors.blueGrey.shade800 : Colors.blueGrey.shade200,
+                    labelStyle:
+                    TextStyle(color: isDark ? Colors.white : Colors.black87),
+                    onPressed: () => _sendMessage(topic),
                   ),
                 );
               }).toList(),
             ),
           ),
-
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(10),
               itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                return _buildMessageWidget(msg);
-              },
+              itemBuilder: (context, index) =>
+                  _buildMessageWidget(_messages[index]),
             ),
           ),
-
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             color: currentBackground,
@@ -499,10 +521,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
+                    style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyMedium?.color),
                     decoration: InputDecoration(
                       hintText: "Type a message...",
-                      hintStyle: TextStyle(color: isDark ? hintTextColor : lightHintTextColor),
+                      hintStyle: TextStyle(
+                          color: isDark ? hintTextColor : lightHintTextColor),
                       border: InputBorder.none,
                     ),
                     onSubmitted: _sendMessage,
@@ -512,7 +536,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   icon: _isLoading
                       ? CircularProgressIndicator(color: currentSendButtonColor)
                       : Icon(Icons.send, color: currentSendButtonColor),
-                  onPressed: _isLoading ? null : () => _sendMessage(_controller.text),
+                  onPressed:
+                  _isLoading ? null : () => _sendMessage(_controller.text),
                 ),
               ],
             ),
