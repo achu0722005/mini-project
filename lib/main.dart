@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:lottie/lottie.dart';
 
-// --- Theme Management ---
+
 class ThemeNotifier extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.dark;
 
@@ -17,7 +18,7 @@ class ThemeNotifier extends ChangeNotifier {
   }
 }
 
-// Data model for a single chat message
+
 class ChatMessage {
   final String text;
   final bool isUser;
@@ -26,7 +27,7 @@ class ChatMessage {
   ChatMessage({required this.text, required this.isUser, this.options = const []});
 }
 
-// --- Dark Theme Colors ---
+
 const Color background = Color(0xFF0D1117);
 const Color chatBackground = Color(0xFF161B22);
 const Color userMessageColor = Color(0xFF1F6FEB);
@@ -34,7 +35,7 @@ const Color botMessageColor = Color(0xFF30363D);
 const Color hintTextColor = Color(0xFF8B949E);
 const Color sendButtonColor = Color(0xFF238636);
 
-// --- Light Theme Colors ---
+
 const Color lightBackground = Color(0xFFFFFFFF);
 const Color lightChatBackground = Color(0xFFF6F8FA);
 const Color lightUserMessageColor = Color(0xFF2188FF);
@@ -133,15 +134,18 @@ class _ChatContainerState extends State<ChatContainer> {
     final currentBackground = Theme.of(context).brightness == Brightness.dark
         ? background
         : lightBackground;
-    final currentHintColor = Theme.of(context).brightness == Brightness.dark
-        ? hintTextColor
-        : lightHintTextColor;
 
     if (!_isChatOpen) {
       return Scaffold(
         backgroundColor: currentBackground,
         body: Center(
-          child: Icon(Icons.psychology_alt, size: 150, color: currentHintColor),
+          child: Lottie.asset(
+            'assets/chatbotnew.json',
+            width: 420,
+            height: 520,
+            repeat: true,
+            animate: true,
+          ),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: _openChatWithAnimation,
@@ -162,7 +166,7 @@ class _ChatContainerState extends State<ChatContainer> {
   }
 }
 
-// --- Chat Screen ---
+
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
   @override
@@ -228,7 +232,6 @@ class _ChatScreenState extends State<ChatScreen> {
     return rawText.replaceAll(regex, '').trim();
   }
 
-  // ✅ UPDATED sendMessage: includes language + error handling
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty || _isLoading) return;
 
@@ -250,7 +253,7 @@ class _ChatScreenState extends State<ChatScreen> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'user_input': aiInput,
-          'language': _selectedLanguage, // ✅ send language
+          'language': _selectedLanguage,
         }),
       )
           .timeout(const Duration(seconds: 25));
@@ -267,7 +270,7 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _messages.add(ChatMessage(
             text:
-            "⚠️ Error connecting to server: $e\nCheck your Flask server and network settings.",
+            " Error connecting to server: $e\nCheck your Flask server ",
             isUser: false));
       });
     }
@@ -277,7 +280,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _startInactivityTimer();
   }
 
-  // ✅ NEW: Trigger backend when language is changed
   Future<void> _handleLanguageChange(String newLanguage) async {
     setState(() => _selectedLanguage = newLanguage);
 
@@ -300,7 +302,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       setState(() {
         _messages.add(ChatMessage(
-            text: "⚠️ Failed to switch language: $e", isUser: false));
+            text: " Failed to switch language: $e", isUser: false));
       });
     }
   }
@@ -350,15 +352,15 @@ class _ChatScreenState extends State<ChatScreen> {
           msg.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Container(
-              constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.75),
+              constraints:
+              BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: bubbleColor,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Text(msg.text,
-                  style: TextStyle(color: textColor, fontSize: 15)),
+              child:
+              Text(msg.text, style: TextStyle(color: textColor, fontSize: 15)),
             ),
             if (!msg.isUser && msg.options.isNotEmpty)
               Padding(
@@ -390,14 +392,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeNotifier =
-    Provider.of<ThemeNotifier>(context, listen: false);
+    final themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final currentChatBackground =
-    isDark ? chatBackground : lightChatBackground;
+    final currentChatBackground = isDark ? chatBackground : lightChatBackground;
     final currentBackground = isDark ? background : lightBackground;
-    final currentSendButtonColor =
-    isDark ? sendButtonColor : lightSendButtonColor;
+    final currentSendButtonColor = isDark ? sendButtonColor : lightSendButtonColor;
 
     return Scaffold(
       backgroundColor: currentChatBackground,
@@ -447,8 +446,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             ListTile(
-              leading: Icon(
-                  isDark ? Icons.light_mode : Icons.dark_mode,
+              leading: Icon(isDark ? Icons.light_mode : Icons.dark_mode,
                   color: Theme.of(context).textTheme.bodyMedium?.color),
               title: Text('Theme Mode',
                   style: TextStyle(
@@ -494,8 +492,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: ActionChip(
                     label: Text(topic),
-                    backgroundColor:
-                    isDark ? Colors.blueGrey.shade800 : Colors.blueGrey.shade200,
+                    backgroundColor: isDark
+                        ? Colors.blueGrey.shade800
+                        : Colors.blueGrey.shade200,
                     labelStyle:
                     TextStyle(color: isDark ? Colors.white : Colors.black87),
                     onPressed: () => _sendMessage(topic),
