@@ -216,7 +216,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Timer? _inactivityTimer;
   bool _isLoading = false;
   String _selectedLanguage = 'English';
-  static const String _pythonApiUrl = 'http://10.0.2.2:5000/chatbot';
+  static const String _pythonApiUrl = 'https://ai-personal-assistant-zq0q.onrender.com/chatbot';
 
   final List<String> _topics = [
     'Health Check-up',
