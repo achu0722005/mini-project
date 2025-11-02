@@ -172,8 +172,7 @@ def status():
 
 
 # --- Run Flask app ---
-if __name__ == '__main__':
-    print("🤖 Personal AI Chatbot Server starting...")
-    if client is None:
-        print("⚠️ WARNING: Gemini API key missing. Please set GEMINI_API_KEY before running.")
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 10000))  # Render uses this PORT variable
+    app.run(host="0.0.0.0", port=port)
