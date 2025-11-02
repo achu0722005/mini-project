@@ -217,11 +217,17 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isLoading = false;
   String _selectedLanguage = 'English';
 
-  // ✅ Updated URLs
-  static const String _renderApiUrl =
+// When deploying (Render server)
+  static const String _pythonApiUrl =
       'https://ai-personal-assistant-zq0q.onrender.com/chatbot';
+
+// For local testing (when Flask runs on your PC)
   static const String _localApiUrl =
-      'http://10.0.2.2:5000/chatbot'; // use when testing locally in Android emulator
+      // 'http://10.0.2.2:5000/chatbot'
+   'http://10.184.14.38:5000/chatbot';
+
+  static const String _renderApiUrl = 'https://ai-personal-assistant-zq0q.onrender.com/chatbot';
+
 
   final List<String> _topics = [
     'Health Check-up',

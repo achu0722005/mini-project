@@ -3,4 +3,4 @@ gunicorn
 google-genai
 textwrap3
 requests
-
+gunicorn
