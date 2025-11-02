@@ -7,7 +7,7 @@ import textwrap
 from dotenv import load_dotenv
 from flask_cors import CORS  # ✅ Added for CORS
 
-load_dotenv("apikeyss.env")
+# load_dotenv("apikeyss.env")
 
 # --- Flask App Initialization ---
 app = Flask(__name__)
