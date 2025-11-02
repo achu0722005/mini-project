@@ -217,17 +217,15 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isLoading = false;
   String _selectedLanguage = 'English';
 
-// When deploying (Render server)
   static const String _pythonApiUrl =
-      'https://ai-personal-assistant-zq0q.onrender.com/chatbot';
+      'https://ai-assistant-blsi.onrender.com/chatbot';
 
 // For local testing (when Flask runs on your PC)
   static const String _localApiUrl =
-      // 'http://10.0.2.2:5000/chatbot'
-   'http://10.184.14.38:5000/chatbot';
+  // 'http://10.0.2.2:5000/chatbot'
+      'http://10.184.14.38:5000/chatbot';
 
-  static const String _renderApiUrl = 'https://ai-personal-assistant-zq0q.onrender.com/chatbot';
-
+  static const String _renderApiUrl = 'https://ai-assistant-blsi.onrender.com/chatbot';
 
   final List<String> _topics = [
     'Health Check-up',
@@ -573,7 +571,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
             color: currentBackground,
             child: Row(
               children: [
