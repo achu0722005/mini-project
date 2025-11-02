@@ -161,6 +161,14 @@ def get_chat_response():
     # --- Normal chat response ---
     bot_response = get_gemini_response(conversation_history, user_input)
     return jsonify({'response': bot_response, 'language': user_language})
+# --- Flask endpoint to check server status ---
+@app.route('/status', methods=['GET'])
+def status():
+    return jsonify({
+        'status': '✅ Server is running',
+        'model': 'Gemini 2.5 Flash',
+        'language': user_language
+    }), 200
 
 
 # --- Run Flask app ---
