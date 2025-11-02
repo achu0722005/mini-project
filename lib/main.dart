@@ -216,7 +216,12 @@ class _ChatScreenState extends State<ChatScreen> {
   Timer? _inactivityTimer;
   bool _isLoading = false;
   String _selectedLanguage = 'English';
-  static const String _pythonApiUrl = 'https://ai-personal-assistant-zq0q.onrender.com/chatbot';
+
+  // ✅ Updated URLs
+  static const String _renderApiUrl =
+      'https://ai-personal-assistant-zq0q.onrender.com/chatbot';
+  static const String _localApiUrl =
+      'http://10.0.2.2:5000/chatbot'; // use when testing locally in Android emulator
 
   final List<String> _topics = [
     'Health Check-up',
@@ -261,6 +266,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return rawText.replaceAll(regex, '').trim();
   }
 
+  // ✅ Updated message sending logic
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty || _isLoading) return;
     final aiInput = "$text (respond in $_selectedLanguage)";
@@ -272,31 +278,54 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
     _inactivityTimer?.cancel();
 
-    try {
-      final response = await http
-          .post(
-        Uri.parse(_pythonApiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'user_input': aiInput,
-          'language': _selectedLanguage,
-        }),
-      )
-          .timeout(const Duration(seconds: 25));
+    final List<String> endpoints = [_renderApiUrl, _localApiUrl];
+    bool success = false;
 
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final String rawReply = data['response'] ?? "Sorry, I didn’t get that.";
-      final List<String> options = _extractOptions(rawReply);
-      final String cleanReply = _cleanText(rawReply);
-      if (!mounted) return;
-      setState(() {
-        _messages.add(ChatMessage(text: cleanReply, isUser: false, options: options));
-      });
-    } catch (e) {
+    for (final url in endpoints) {
+      try {
+        final response = await http
+            .post(
+          Uri.parse(url),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'user_input': aiInput,
+            'language': _selectedLanguage,
+          }),
+        )
+            .timeout(const Duration(seconds: 25));
+
+        if (response.statusCode == 405) {
+          throw Exception("Server rejected GET method — make sure it's POST route.");
+        } else if (response.statusCode != 200) {
+          throw Exception("Unexpected status: ${response.statusCode}");
+        }
+
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final String rawReply = data['response'] ?? "Sorry, I didn’t get that.";
+        final List<String> options = _extractOptions(rawReply);
+        final String cleanReply = _cleanText(rawReply);
+
+        if (!mounted) return;
+        setState(() {
+          _messages.add(ChatMessage(text: cleanReply, isUser: false, options: options));
+        });
+
+        success = true;
+        break;
+      } catch (e) {
+        debugPrint("Error connecting to $url → $e");
+        continue;
+      }
+    }
+
+    if (!success) {
       if (!mounted) return;
       setState(() {
         _messages.add(ChatMessage(
-            text: "Error connecting to server: $e\nCheck your Flask server", isUser: false));
+          text:
+          "⚠️ Unable to connect to the chatbot server.\nCheck if Flask or Render server is running.",
+          isUser: false,
+        ));
       });
     }
 
@@ -310,7 +339,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() => _selectedLanguage = newLanguage);
     try {
       final response = await http.post(
-        Uri.parse(_pythonApiUrl),
+        Uri.parse(_renderApiUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'user_input': "change_language",
@@ -473,7 +502,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   color: Theme.of(context).textTheme.bodyMedium?.color),
               title: Text('Theme Mode',
                   style: TextStyle(
-                      color: Theme.of(context).textTheme.bodyMedium?.color)),
+                      color:
+                      Theme.of(context).textTheme.bodyMedium?.color)),
               trailing: Switch(
                 value: isDark,
                 onChanged: (_) => themeNotifier.toggleTheme(),
@@ -485,7 +515,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   color: Theme.of(context).textTheme.bodyMedium?.color),
               title: Text('About',
                   style: TextStyle(
-                      color: Theme.of(context).textTheme.bodyMedium?.color)),
+                      color:
+                      Theme.of(context).textTheme.bodyMedium?.color)),
               onTap: () {
                 showAboutDialog(
                   context: context,
@@ -515,8 +546,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: ActionChip(
                     label: Text(topic),
-                    backgroundColor:
-                    isDark ? Colors.blueGrey.shade800 : Colors.blueGrey.shade200,
+                    backgroundColor: isDark
+                        ? Colors.blueGrey.shade800
+                        : Colors.blueGrey.shade200,
                     labelStyle:
                     TextStyle(color: isDark ? Colors.white : Colors.black87),
                     onPressed: () => _sendMessage(topic),
@@ -545,20 +577,33 @@ class _ChatScreenState extends State<ChatScreen> {
                     style: TextStyle(
                         color: Theme.of(context).textTheme.bodyMedium?.color),
                     decoration: InputDecoration(
-                      hintText: "Type a message...",
+                      hintText: 'Ask me anything...',
                       hintStyle:
                       TextStyle(color: isDark ? hintTextColor : lightHintTextColor),
-                      border: InputBorder.none,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: isDark
+                          ? Colors.white10
+                          : Colors.grey.withOpacity(0.15),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 10),
                     ),
                     onSubmitted: _sendMessage,
                   ),
                 ),
-                IconButton(
-                  icon: _isLoading
-                      ? CircularProgressIndicator(color: currentSendButtonColor)
-                      : Icon(Icons.send, color: currentSendButtonColor),
-                  onPressed:
-                  _isLoading ? null : () => _sendMessage(_controller.text),
+                const SizedBox(width: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: currentSendButtonColor,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    onPressed: () => _sendMessage(_controller.text),
+                  ),
                 ),
               ],
             ),
