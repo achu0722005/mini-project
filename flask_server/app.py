@@ -4,9 +4,14 @@ from google.genai import types
 import os
 import json
 import textwrap
+from dotenv import load_dotenv
+from flask_cors import CORS  # ✅ Added for CORS
+
+load_dotenv("apikeyss.env")
 
 # --- Flask App Initialization ---
 app = Flask(__name__)
+CORS(app)  # ✅ Enable CORS for all routes (important for Flutter/Render)
 
 # --- Default Language ---
 user_language = "English"
@@ -63,7 +68,6 @@ def reset_conversation(language):
         types.Content(role="model", parts=[types.Part(text=WELCOME_MESSAGE_TEXT)])
     ]
 
-
 reset_conversation(user_language)
 
 
@@ -114,6 +118,18 @@ def get_gemini_response(history, user_input):
     except Exception as e:
         print(f"❌ Gemini API error: {e}")
         return "🤖 Error: Could not contact Gemini model."
+
+
+# --- ✅ NEW: Root route to check server status ---
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({
+        "status": "✅ Server is running successfully!",
+        "message": "Welcome to Personal AI Chatbot API",
+        "endpoints": {
+            "POST": "/chatbot"
+        }
+    })
 
 
 # --- Flask endpoint for chatbot ---
