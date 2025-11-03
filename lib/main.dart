@@ -220,10 +220,10 @@ class _ChatScreenState extends State<ChatScreen> {
   static const String _pythonApiUrl =
       'https://ai-assistant-blsi.onrender.com/chatbot';
 
-// For local testing (when Flask runs on your PC)
-  static const String _localApiUrl =
-  // 'http://10.0.2.2:5000/chatbot'
-      'http://10.184.14.38:5000/chatbot';
+// // For local testing (when Flask runs on your PC)
+//   static const String _localApiUrl =
+//   // 'http://10.0.2.2:5000/chatbot'
+//       'http://10.184.14.38:5000/chatbot';
 
   static const String _renderApiUrl = 'https://ai-assistant-blsi.onrender.com/chatbot';
 
@@ -282,7 +282,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
     _inactivityTimer?.cancel();
 
-    final List<String> endpoints = [_renderApiUrl, _localApiUrl];
+    final List<String> endpoints = [_renderApiUrl]; //********_localApiUrl********
     bool success = false;
 
     for (final url in endpoints) {
